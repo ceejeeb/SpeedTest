@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>1.0</version>
+    <title>$title$</title>
+    <authors>Chris Brookes</authors>
+    <owners>Chris Brookes</owners>
+    <licenseUrl>https://raw.githubusercontent.com/ceejeeb/SpeedTest/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/ceejeeb/SpeedTest</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>SpeedTest library to test internet bandwidth using speedtest.net</description>
+    <copyright>Copyright 2018</copyright>
+    <tags>SpeedTest speedtest.net c#</tags>
+  </metadata>
+</package>

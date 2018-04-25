@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeedTest", "SpeedTest\SpeedTest.csproj", "{F1A41F72-F07A-40D6-9283-E690DB87BDAE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpeedTest.ClientApp", "SpeedTest.ClientApp\SpeedTest.ClientApp.csproj", "{EDCED409-59DD-4F52-A9FE-FAC0329BA404}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F1A41F72-F07A-40D6-9283-E690DB87BDAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1A41F72-F07A-40D6-9283-E690DB87BDAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1A41F72-F07A-40D6-9283-E690DB87BDAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1A41F72-F07A-40D6-9283-E690DB87BDAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDCED409-59DD-4F52-A9FE-FAC0329BA404}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDCED409-59DD-4F52-A9FE-FAC0329BA404}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDCED409-59DD-4F52-A9FE-FAC0329BA404}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDCED409-59DD-4F52-A9FE-FAC0329BA404}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BE87A70B-903C-453F-B545-7DB35A27880E}
+	EndGlobalSection
+EndGlobal
