@@ -14,11 +14,18 @@ namespace SpeedTest
     public class SpeedTestClient : ISpeedTestClient
     {
         private const string ConfigUrl = "http://www.speedtest.net/speedtest-config.php";
-        private const string ServersUrl = "http://www.speedtest.net/speedtest-servers.php";
-        private readonly int[] downloadSizes = { 350, 750, 1500, 2000, 4000 };
-        private readonly int retries = 8;
-        private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private const int MaxUploadSize = 16;
+        private const string ServersUrl = "http://c.speedtest.net/speedtest-servers-static.php";
+        private readonly int[] downloadSizes = { 350, 750, 1500, 4000 };
+        private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        private const int MaxUploadSize = 4;
+        private Settings _settings;
+        private IEnumerable<Server> _orderedServers;
+
+        public SpeedTestClient()
+        {
+            LoadSettings();
+            LoadServers();
+        }
 
         #region ISpeedTestClient
 
@@ -26,7 +33,7 @@ namespace SpeedTest
         /// Download speedtest.net settings
         /// </summary>
         /// <returns>speedtest.net settings</returns>
-        public Settings GetSettings()
+        private void LoadSettings()
         {
             using (var client = new SpeedTestWebClient())
             {
@@ -36,8 +43,20 @@ namespace SpeedTest
                 serversConfig.CalculateDistances(settings.Client.GeoCoordinate);
                 settings.Servers = serversConfig.Servers.OrderBy(s => s.Distance).ToList();
 
-                return settings;
+                _settings = settings;
             }
+
+        }
+
+        private void LoadServers()
+        {
+            var servers = _settings.Servers.Where(s => s.Country.Equals(_settings.DefaultCountry)).Take(10).ToList();
+
+            foreach (var server in servers)
+            {
+                server.Latency = TestServerLatency(server);
+            }
+            _orderedServers = servers.OrderBy(x => x.Latency);
         }
 
         /// <summary>
@@ -82,29 +101,31 @@ namespace SpeedTest
         /// Test download speed to server
         /// </summary>
         /// <returns>Download speed in Kbps</returns>
-        public double TestDownloadSpeed(Server server, int simultaniousDownloads = 2)
+        public double TestDownloadSpeed(int retryCount = 2, Server server = null)
         {
-            var testData = GenerateDownloadUrls(server);
+            server = server ?? _orderedServers.First();
+            var testData = GenerateDownloadUrls(server, retryCount);
 
             return TestSpeed(testData, async (client, url) =>
             {
                 var data = await client.DownloadDataTaskAsync(url).ConfigureAwait(false);
                 return data.Length;
-            }, simultaniousDownloads);
+            }, _settings.Download.ThreadsPerUrl);
         }
 
         /// <summary>
         /// Test upload speed to server
         /// </summary>
         /// <returns>Upload speed in Kbps</returns>
-        public double TestUploadSpeed(Server server, int simultaniousUploads = 2)
+        public double TestUploadSpeed(int retryCount = 2, Server server = null)
         {
-            var testData = GenerateUploadData();
+            server = server ?? _orderedServers.First();
+            var testData = GenerateUploadData(retryCount);
             return TestSpeed(testData, async (client, uploadData) =>
             {
                 await client.UploadValuesTaskAsync(server.Url, uploadData).ConfigureAwait(false);
                 return uploadData[0].Length;
-            }, simultaniousUploads);
+            }, _settings.Upload.ThreadsPerUrl);
         }
 
         #endregion
@@ -140,12 +161,12 @@ namespace SpeedTest
             return (totalSize * 8 / 1024) / ((double)timer.ElapsedMilliseconds / 1000);
         }
 
-        private IEnumerable<NameValueCollection> GenerateUploadData()
+        private IEnumerable<NameValueCollection> GenerateUploadData(int retryCount)
         {
             var random = new Random();
             var result = new List<NameValueCollection>();
 
-            for (var sizeCounter = MaxUploadSize/2; sizeCounter < MaxUploadSize+1; sizeCounter++)
+            for (var sizeCounter = 1; sizeCounter <= MaxUploadSize; sizeCounter++)
             {
                 var size = sizeCounter*1024*1024;
                 var builder = new StringBuilder(size);
@@ -153,7 +174,7 @@ namespace SpeedTest
                 for (var i = 0; i < size; ++i)
                     builder.Append(Chars[random.Next(Chars.Length)]);
 
-                for (var i = 0; i < retries; i++)
+                for (var i = 0; i < retryCount; i++)
                 {
                     result.Add(new NameValueCollection { { string.Format("content{0}", sizeCounter), builder.ToString() } });
                 }
@@ -167,12 +188,12 @@ namespace SpeedTest
             return new Uri(new Uri(server.Url), ".").OriginalString + file;
         }
 
-        private IEnumerable<string> GenerateDownloadUrls(Server server)
+        private IEnumerable<string> GenerateDownloadUrls(Server server, int retryCount)
         {
             var downloadUriBase = CreateTestUrl(server, "random{0}x{0}.jpg?r={1}");
             foreach (var downloadSize in downloadSizes)
             {
-                for (var i = 0; i < retries; i++)
+                for (var i = 0; i < retryCount; i++)
                 {
                     yield return string.Format(downloadUriBase, downloadSize, i);
                 }

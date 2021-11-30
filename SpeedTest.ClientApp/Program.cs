@@ -1,64 +1,26 @@
-﻿using SpeedTest.Models;
-using System;
-using System.Linq;
-using System.Collections.Generic;
+﻿using System;
 
 namespace SpeedTest.ClientApp
 {
     class Program
     {
         private static SpeedTestClient client;
-        private static Settings settings;
-        private const string DefaultCountry = "Great Britain";
 
         static void Main()
         {
             Console.WriteLine("Getting speedtest.net settings and server list...");
             client = new SpeedTestClient();
-            settings = client.GetSettings();
 
-            var servers = SelectServers();
-            var bestServer = SelectBestServer(servers);
-
-            Console.WriteLine("Testing speed...");
-            var downloadSpeed = client.TestDownloadSpeed(bestServer, settings.Download.ThreadsPerUrl);
+            Console.WriteLine("Testing download speed...");
+            var downloadSpeed = client.TestDownloadSpeed(4);
             PrintSpeed("Download", downloadSpeed);
-            var uploadSpeed = client.TestUploadSpeed(bestServer, settings.Upload.ThreadsPerUrl);
-            PrintSpeed("Upload", uploadSpeed);
 
-            Console.WriteLine("Press a key to exit.");
-            Console.ReadKey();
+            Console.WriteLine("Testing upload speed...");
+            var uploadSpeed = client.TestUploadSpeed(2);
+            PrintSpeed("Upload", uploadSpeed);        
         }
 
-        private static Server SelectBestServer(IEnumerable<Server> servers)
-        {
-            Console.WriteLine();
-            Console.WriteLine("Best server by latency:");
-            var bestServer = servers.OrderBy(x => x.Latency).First();
-            PrintServerDetails(bestServer);
-            Console.WriteLine();
-            return bestServer;
-        }
-
-        private static IEnumerable<Server> SelectServers()
-        {
-            Console.WriteLine();
-            Console.WriteLine("Selecting best server by distance...");
-            var servers = settings.Servers.Where(s => s.Country.Equals(DefaultCountry)).Take(10).ToList();
-
-            foreach (var server in servers)
-            {
-                server.Latency = client.TestServerLatency(server);
-                PrintServerDetails(server);
-            }
-            return servers;
-        }
-
-        private static void PrintServerDetails(Server server)
-        {
-            Console.WriteLine("Hosted by {0} ({1}/{2}), distance: {3}km, latency: {4}ms", server.Sponsor, server.Name,
-                server.Country, (int)server.Distance / 1000, server.Latency);
-        }
+        
 
         private static void PrintSpeed(string type, double speed)
         {

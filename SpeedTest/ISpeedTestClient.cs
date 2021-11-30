@@ -4,11 +4,6 @@ namespace SpeedTest
 {
     public interface ISpeedTestClient
     {
-        /// <summary>
-        /// Download speedtest.net settings
-        /// </summary>
-        /// <returns>speedtest.net settings</returns>
-        Settings GetSettings();
 
         /// <summary>
         /// Test latency (ping) to server
@@ -20,12 +15,12 @@ namespace SpeedTest
         /// Test download speed to server
         /// </summary>
         /// <returns>Download speed in Kbps</returns>
-        double TestDownloadSpeed(Server server, int simultaniousDownloads = 2);
+        double TestDownloadSpeed(int retryCount = 2, Server server = null);
 
         /// <summary>
         /// Test upload speed to server
         /// </summary>
         /// <returns>Upload speed in Kbps</returns>
-        double TestUploadSpeed(Server server, int simultaniousUploads = 2);
+        double TestUploadSpeed(int retryCount = 2, Server server = null);
     }
 }

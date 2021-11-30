@@ -27,5 +27,7 @@ namespace SpeedTest.Models
         {
             Servers = new List<Server>();
         }
+
+        public string DefaultCountry = "United Kingdom";
     }
 }
